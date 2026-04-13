@@ -1,0 +1,84 @@
+Title: Kafka & Event-Driven Architecture — Developer Q&A
+
+---
+
+Q: What is Apache Kafka and why would you use it?
+
+A: Apache Kafka is a distributed event streaming platform designed for high-throughput, fault-tolerant, real-time data pipelines. You would use it when:
+- You need to decouple producers and consumers of data
+- You need to process millions of events per second
+- You need durable, replayable event logs
+- Multiple downstream systems need to consume the same stream independently
+
+Key concepts:
+- Topic: A named stream of records (like a database table for events)
+- Partition: Topics are split into partitions for parallelism
+- Offset: Each message has a sequential offset within its partition
+- Consumer Group: Multiple consumers sharing the load of a topic
+
+---
+
+Q: What is the difference between Kafka and RabbitMQ?
+
+A:
+| Feature | Kafka | RabbitMQ |
+|---------|-------|----------|
+| Model | Log-based (pull) | Message queue (push) |
+| Message retention | Configurable (days/weeks) | Deleted after consumed |
+| Throughput | Very high (millions/sec) | Moderate |
+| Replay | Yes — rewind offset | No — messages gone once consumed |
+| Use case | Event streaming, analytics | Task queues, RPC |
+
+Use Kafka for event streaming and audit logs. Use RabbitMQ for task queues where messages should be processed exactly once and discarded.
+
+---
+
+Q: How do you handle duplicate messages in Kafka?
+
+A: Kafka provides at-least-once delivery by default. To handle duplicates:
+1. Idempotent producers: Enable with `enable.idempotence=true` — Kafka deduplicates at the broker level
+2. Exactly-once semantics (EOS): Use Kafka transactions with `isolation.level=read_committed`
+3. Application-level deduplication: Store processed message offsets in a database and check before processing
+
+```python
+from confluent_kafka import Producer
+
+producer = Producer({
+    'bootstrap.servers': 'localhost:9092',
+    'enable.idempotence': True,  # prevents duplicate sends
+    'acks': 'all',
+})
+```
+
+---
+
+Q: What is consumer lag and how do you monitor it?
+
+A: Consumer lag is the difference between the latest offset in a partition and the offset last committed by a consumer. High lag means your consumer is falling behind the producer.
+
+Monitor with:
+```bash
+kafka-consumer-groups.sh --bootstrap-server localhost:9092 \
+  --describe --group my-consumer-group
+```
+
+In production, expose lag as a metric to Grafana/Prometheus and alert when lag exceeds a threshold.
+
+---
+
+Q: Explain event sourcing and how it relates to Kafka.
+
+A: Event sourcing is an architectural pattern where application state is derived from a sequence of immutable events rather than storing current state directly. 
+
+Kafka is a natural fit because:
+- Kafka topics are immutable, append-only logs — just like an event store
+- Any service can replay the entire event history to rebuild state
+- New services can be added and catch up from the beginning of the log
+
+Example flow:
+1. User places an order → OrderPlaced event published to Kafka
+2. Inventory service consumes → decrements stock
+3. Notification service consumes → sends confirmation email
+4. Analytics service consumes → updates dashboards
+
+Each service maintains its own projection of state derived from the same event stream.

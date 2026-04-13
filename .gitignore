@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.venv/
+venv/
+env/
+ENV/
+
+# Environment
+.env
+*.env.local
+
+# ChromaDB vector store (large binary files)
+chroma_store/
+
+# Node / React
+node_modules/
+frontend/build/
+frontend/.env.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Docker
+*.log
+
+# Data (don't commit raw docs if sensitive)
+# data/sample_docs/*.pdf

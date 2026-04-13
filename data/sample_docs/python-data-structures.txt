@@ -1,0 +1,103 @@
+Title: Python Data Structures — Common Interview Questions & Answers
+
+---
+
+Q: How do you reverse a linked list in Python?
+
+A: You can reverse a linked list iteratively using three pointers: prev, current, and next.
+
+```python
+class ListNode:
+    def __init__(self, val=0, next=None):
+        self.val = val
+        self.next = next
+
+def reverse_linked_list(head):
+    prev = None
+    current = head
+    while current:
+        next_node = current.next  # save next
+        current.next = prev       # reverse pointer
+        prev = current            # advance prev
+        current = next_node       # advance current
+    return prev  # new head
+```
+
+Time complexity: O(n). Space complexity: O(1).
+
+---
+
+Q: What is the difference between a stack and a queue?
+
+A: 
+- Stack: Last In First Out (LIFO). Think of a stack of plates. Python implements this with a list using .append() to push and .pop() to pop.
+- Queue: First In First Out (FIFO). Think of a line at a store. Use collections.deque with .append() and .popleft() for O(1) operations.
+
+```python
+from collections import deque
+
+# Stack
+stack = []
+stack.append(1)
+stack.append(2)
+stack.pop()  # returns 2
+
+# Queue
+queue = deque()
+queue.append(1)
+queue.append(2)
+queue.popleft()  # returns 1
+```
+
+---
+
+Q: How does Python's dictionary work internally?
+
+A: Python dictionaries are implemented as hash tables. When you insert a key-value pair:
+1. Python computes a hash of the key using hash()
+2. The hash is used to find a bucket index in the underlying array
+3. If two keys hash to the same index (collision), Python uses open addressing to find the next available slot
+
+This gives average O(1) for get/set/delete operations. Dictionaries in Python 3.7+ maintain insertion order.
+
+---
+
+Q: What is a heap and when would you use it?
+
+A: A heap is a complete binary tree where every parent node is less than or equal to its children (min-heap). Python's heapq module provides a min-heap.
+
+Use a heap when you need to repeatedly find the minimum (or maximum) element efficiently — for example, in Dijkstra's shortest path algorithm, task scheduling, or finding the K largest/smallest elements.
+
+```python
+import heapq
+
+nums = [3, 1, 4, 1, 5, 9, 2, 6]
+heapq.heapify(nums)       # O(n) - converts list to heap in place
+heapq.heappush(nums, 0)   # O(log n)
+smallest = heapq.heappop(nums)  # O(log n) - returns 0
+
+# K largest elements
+k_largest = heapq.nlargest(3, nums)
+```
+
+---
+
+Q: Explain the difference between shallow copy and deep copy in Python.
+
+A: 
+- Shallow copy: Creates a new object but inserts references to the same nested objects. Changes to nested objects affect both copies.
+- Deep copy: Creates a completely independent copy including all nested objects.
+
+```python
+import copy
+
+original = [[1, 2], [3, 4]]
+
+shallow = copy.copy(original)
+shallow[0][0] = 99
+print(original)  # [[99, 2], [3, 4]] — original is affected!
+
+deep = copy.deepcopy(original)
+deep[0][0] = 0
+print(original)  # [[99, 2], [3, 4]] — original is NOT affected
+```
