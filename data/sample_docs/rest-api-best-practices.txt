@@ -1,0 +1,104 @@
+Title: REST API Design — Best Practices Q&A
+
+---
+
+Q: What are the core principles of REST API design?
+
+A: REST (Representational State Transfer) is built on 6 constraints:
+1. Client-Server: UI and data storage are separated
+2. Stateless: Each request contains all info needed — no server-side session
+3. Cacheable: Responses should define whether they can be cached
+4. Uniform Interface: Consistent resource naming and HTTP methods
+5. Layered System: Client doesn't know if it talks to the actual server or a proxy
+6. Code on Demand (optional): Servers can send executable code to clients
+
+---
+
+Q: How should you version a REST API?
+
+A: Three common approaches:
+1. URL versioning (most common): /api/v1/users, /api/v2/users
+2. Header versioning: Accept: application/vnd.myapp.v2+json
+3. Query param: /api/users?version=2
+
+URL versioning is recommended for public APIs — it's explicit and easy to test in a browser.
+
+```python
+# FastAPI example
+from fastapi import APIRouter
+
+v1_router = APIRouter(prefix="/api/v1")
+v2_router = APIRouter(prefix="/api/v2")
+
+@v1_router.get("/users")
+def get_users_v1():
+    return {"version": "v1"}
+
+@v2_router.get("/users")
+def get_users_v2():
+    return {"version": "v2", "extra_field": True}
+```
+
+---
+
+Q: What HTTP status codes should I use?
+
+A:
+| Code | Meaning | When to use |
+|------|---------|-------------|
+| 200 | OK | Successful GET, PUT, PATCH |
+| 201 | Created | Successful POST that created a resource |
+| 204 | No Content | Successful DELETE |
+| 400 | Bad Request | Validation error, malformed JSON |
+| 401 | Unauthorized | Missing or invalid auth token |
+| 403 | Forbidden | Authenticated but not authorized |
+| 404 | Not Found | Resource doesn't exist |
+| 409 | Conflict | Duplicate resource, version conflict |
+| 422 | Unprocessable Entity | Semantically invalid input |
+| 429 | Too Many Requests | Rate limit exceeded |
+| 500 | Internal Server Error | Unexpected server failure |
+
+---
+
+Q: How do you handle pagination in REST APIs?
+
+A: Three strategies:
+1. Offset pagination: ?page=2&limit=20 — simple but slow on large datasets
+2. Cursor pagination: ?cursor=eyJpZCI6MTAwfQ&limit=20 — efficient, consistent
+3. Keyset pagination: ?after_id=100&limit=20 — fast for sorted datasets
+
+Cursor pagination is best for feeds and large datasets:
+
+```python
+@app.get("/api/posts")
+def get_posts(cursor: str | None = None, limit: int = 20):
+    query = db.query(Post).order_by(Post.created_at.desc())
+    if cursor:
+        decoded = decode_cursor(cursor)
+        query = query.filter(Post.created_at < decoded)
+    posts = query.limit(limit + 1).all()
+    next_cursor = encode_cursor(posts[-1]) if len(posts) > limit else None
+    return {
+        "data": posts[:limit],
+        "next_cursor": next_cursor,
+        "has_more": next_cursor is not None
+    }
+```
+
+---
+
+Q: What is the difference between PUT and PATCH?
+
+A:
+- PUT: Replaces the entire resource. If you omit a field, it gets cleared/reset.
+- PATCH: Partial update. Only the fields you send are changed.
+
+```json
+// PUT /api/users/1  — must send ALL fields
+{ "name": "Harsh", "email": "hp@email.com", "role": "admin" }
+
+// PATCH /api/users/1 — only update what changed
+{ "role": "engineer" }
+```
+
+Use PATCH for most update operations — it's safer and more efficient.

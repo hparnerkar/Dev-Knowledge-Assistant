@@ -180,7 +180,7 @@ POST /api/query
 | Day | Focus | Status |
 |-----|-------|--------|
 | Day 1 | Project scaffold, FastAPI base, README | ✅ Done |
-| Day 2 | Document ingestion pipeline (loader, chunker, embedder) | 🔄 In Progress |
+| Day 2 | Document ingestion pipeline (loader, chunker, embedder) | ✅ Done |
 | Day 3 | RAG pipeline (retriever, LangChain chain, prompts) | ⏳ Planned |
 | Day 4 | REST API endpoints + Pydantic models | ⏳ Planned |
 | Day 5 | React frontend — chat UI + source cards | ⏳ Planned |
