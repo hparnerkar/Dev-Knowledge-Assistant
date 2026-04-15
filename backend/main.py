@@ -59,11 +59,10 @@ app.add_middleware(
 
 
 # ── Routes ────────────────────────────────────────────────────────────────────
-# Imported here (after app creation) to avoid circular imports.
-# Full route implementations arrive in Day 4.
-# from api.routes import query, ingest
-# app.include_router(query.router, prefix="/api")
-# app.include_router(ingest.router, prefix="/api")
+from api.routes import query, ingest
+
+app.include_router(query.router, prefix="/api")
+app.include_router(ingest.router, prefix="/api")
 
 
 # ── Health Check ─────────────────────────────────────────────────────────────
