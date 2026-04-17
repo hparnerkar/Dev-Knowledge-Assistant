@@ -183,7 +183,7 @@ POST /api/query
 | Day 2 | Document ingestion pipeline (loader, chunker, embedder) | ✅ Done |
 | Day 3 | RAG pipeline (retriever, LangChain chain, prompts) | ✅ Done |
 | Day 4 | REST API endpoints + Pydantic models | ✅ Done |
-| Day 5 | React frontend — chat UI + source cards | ⏳ Planned |
+| Day 5 | React frontend — chat UI + source cards | ✅ Done |
 | Day 6 | Polish — error handling, observability, prompt tuning | ⏳ Planned |
 | Day 7 | Docker, final README, demo | ⏳ Planned |
 
