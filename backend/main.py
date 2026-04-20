@@ -12,6 +12,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from config import get_settings
+from middleware.error_handler import register_error_handlers
+from middleware.logging_middleware import RequestLoggingMiddleware
 
 # ── Logging ──────────────────────────────────────────────────────────────────
 logging.basicConfig(
@@ -49,13 +51,17 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:3000",   # React dev server
+        "http://localhost:3000",
         "http://127.0.0.1:3000",
     ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# ── Request logging & error handlers ─────────────────────────────────────────
+app.add_middleware(RequestLoggingMiddleware)
+register_error_handlers(app)
 
 
 # ── Routes ────────────────────────────────────────────────────────────────────
